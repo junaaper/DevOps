@@ -1,0 +1,6 @@
+services:
+  react-static:
+    build: .
+    container_name: react-static-app
+    ports:
+      - "8090:80"

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3-Tier Docker App</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+        }
+        h1 { color: #667eea; text-align: center; }
+        .status { padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center; font-weight: bold; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        form { display: flex; gap: 10px; margin: 20px 0; }
+        input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; }
+        button { padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .user-card { padding: 15px; background: #f8f9fa; border-radius: 8px; margin: 10px 0; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐳 3-Tier Docker App</h1>
+        <div id="status" class="status"></div>
+        <form id="userForm">
+            <input type="text" id="name" placeholder="Name" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <button type="submit">Add User</button>
+        </form>
+        <div id="users"></div>
+    </div>
+    <script>
+        const API = '/api';
+        
+        async function check() {
+            try {
+                const res = await fetch(API + '/health');
+                const data = await res.json();
+                document.getElementById('status').textContent = data.status;
+                document.getElementById('status').className = 'status success';
+            } catch (err) {
+                document.getElementById('status').textContent = 'Backend failed: ' + err.message;
+                document.getElementById('status').className = 'status error';
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await fetch(API + '/users');
+                const users = await res.json();
+                document.getElementById('users').innerHTML = users.map(u => 
+                    `<div class="user-card"><div><b>${u.name}</b><br>${u.email}</div><button onclick="del(${u.id})">Delete</button></div>`
+                ).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.getElementById('userForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            await fetch(API + '/users', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, email})
+            });
+            document.getElementById('userForm').reset();
+            loadUsers();
+        };
+
+        async function del(id) {
+            await fetch(API + '/users/' + id, {method: 'DELETE'});
+            loadUsers();
+        }
+
+        check();
+        loadUsers();
+    </script>
+</body>
+</html>
