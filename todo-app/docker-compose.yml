@@ -39,7 +39,7 @@ services:
     build: ./frontend
     container_name: todo-frontend
     ports:
-      - "80:80"
+      - 9090:80
     depends_on:
       - backend
 
