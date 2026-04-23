@@ -31,7 +31,7 @@ function Login({ onAuth }) {
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
       {error && <div className="error-msg">{error}</div>}
-      <input type="text" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
+      <input type="text" placeholder="Devops" value={username} onChange={e => setUsername(e.target.value)} required />
       <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
       <button type="submit" className="btn-primary" disabled={loading}>
         {loading ? 'Signing in...' : 'Sign In →'}
